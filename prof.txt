@@ -1,0 +1,100 @@
+Waiter
+Waitress
+Paramedic
+Dentist
+Train conductor
+Nurse
+Electrician
+Doctor
+Businessman
+football player
+Student
+Surgeon
+Doorman
+Secretary
+Soldier
+Repairman
+Scientist
+Reporter
+Constructor
+Professor
+Police officer
+Mailman
+Photographer
+Pilot
+Painter
+Mechanic
+Magician
+Lifeguard
+supervisor
+Clown
+Housekeeper
+Gardener
+Forest ranger
+Builder
+Farmer
+Flight attendant
+Fireman
+Engineer
+Carpenter
+Architect
+Boxer
+Cameraman
+Detective
+Journalist
+Housewife
+Diver
+Salesman
+Librarian
+Singer
+basketball player
+Tennis player
+volleyball player
+soccer player
+softball player
+Rugby player
+Officer
+Actor
+Actress
+Administrator
+Ballet Dancer
+Banker
+Bartender
+Belly Dancer
+Cyclist
+Economist
+QA Tester
+Plumber
+Software Engineer
+Full Stack Engineer
+Backend Engineer
+Frontend Engineer
+Electrical Engineer
+Civil Engineer
+Graphic Designer
+Designer
+UX Designer
+Magician
+Boss
+Manager
+Analyst
+Data Analyst
+Physician
+Mathematician
+Mechanics Engineer
+Chiropractor
+Firefighter
+Financial advisor
+Taxi driver
+Truck driver
+Ambulance driver
+Limousine driver
+Intern
+Office manager
+Kickboxer
+Clerk
+Handyman
+Market Analyst
+Captain
+Administrative assistant
+Financial Analyst
