@@ -1,10 +1,11 @@
 import xlsxwriter
 import os
 import pandas as pd
+import math
 
 docs_folder = os.path.dirname(os.path.realpath(__file__)) + "\Docs"
 bank_statement_file = docs_folder + "\BOA.xlsx"
-paypal_statement_file = docs_folder + "\Paypal.xlsx"
+paypal_statement_file = docs_folder + "\Paypal3.xlsx"
 
 
 
@@ -39,6 +40,8 @@ def boa_analysis(statement_file=bank_statement_file):
     stripe_balance_trans = []
     dropified_balance = 0
     dropified_trans = []
+    custom_happy = 0
+    custom_happy_trans = []
     shopify_apps = 0
     bank_fees = 0
     bank_fees_trans = []
@@ -62,7 +65,6 @@ def boa_analysis(statement_file=bank_statement_file):
             fb_trans.append(amount[i])
             advertising_costs.append(amount[i])
         elif "shopify" in description[i].lower():
-            shopify_trans.append(amount[i])
             if amount[i] < 0:
                 if amount[i] < -30:
                     shopify_apps = shopify_apps + amount[i]
@@ -70,15 +72,22 @@ def boa_analysis(statement_file=bank_statement_file):
                 else:
                     shopify_refunds = shopify_refunds + amount[i]
                     refunds.append(amount[i])
+                    shopify_trans.append(amount[i])
             else:
                 shopify_balance = shopify_balance + amount[i]
+                shopify_trans.append(amount[i])
         elif "stripe" in description[i].lower():
-            stripe_balance_trans.append(amount[i])
-            if amount[i] < 0:
-                stripe_refunds = stripe_refunds + amount[i]
-                refunds.append(amount[i])
+            if "CUSTOMHAPPY" not in description[i]:
+                stripe_balance_trans.append(amount[i])
+                if amount[i] < 0:
+                    stripe_refunds = stripe_refunds + amount[i]
+                    refunds.append(amount[i])
+                else:
+                    stripe_balance = stripe_balance + amount[i]
             else:
-                stripe_balance = stripe_balance + amount[i]
+                custom_happy = custom_happy + amount[i]
+                custom_happy_trans.append(amount[i])
+                cogs.append(amount[i])
         elif "amzn" in description[i].lower():
             amazon_sales = amazon_sales + amount[i]
             amazon_trans.append(amount[i])
@@ -106,7 +115,7 @@ def boa_analysis(statement_file=bank_statement_file):
             reveal_balance = reveal_balance + amount[i]
             reveal_trans.append(amount[i])
             apps_and_platforms.append(amount[i])
-        elif "GOOGLE *ADS" in description[i]:
+        elif "GOOGLE" in description[i] and "*ADS" in description[i]:
             adwords_balance = adwords_balance + amount[i]
             adwords_trans.append(amount[i])
             advertising_costs.append(amount[i])
@@ -131,11 +140,12 @@ def boa_analysis(statement_file=bank_statement_file):
                       "Shopify refunds", "Shopify apps", "Amazon sales", "Amazon trans", "GB", "GB trans",
                       "Etsy balance", "Etsy trans", "CF balance", "Stamped.io balance", "Klaviyo balance", "Reveal balance",
                       "Adwords balance", "Adwords trans", "Stripe refunds", "stripe balance",
-                      "stripe balance trans", "Dropified balance", "Bank fees", "Bank fees trans"]
+                      "stripe balance trans", "Dropified balance", "Bank fees", "Bank fees trans", "Custom Happy", "Custom Happy Trans"]
     items_amount = [aliexpress_balance, aliexpress_trans, fb_balance, fb_trans, shopify_balance, shopify_trans,
                     shopify_refunds, shopify_apps, amazon_sales, amazon_trans, gb, gb_trans, etsy_balance,
                     etsy_trans, cf_balance, stamped_balance, klaviyo_balance, reveal_balance, adwords_balance, adwords_trans,
-                    stripe_refunds, stripe_balance, stripe_balance_trans, dropified_balance, bank_fees, bank_fees_trans]
+                    stripe_refunds, stripe_balance, stripe_balance_trans, dropified_balance, bank_fees, bank_fees_trans,
+                    custom_happy, custom_happy_trans]
     for i in range(len(items_to_print)):
         print(f"{items_to_print[i]} = {items_amount[i]}")
 
@@ -145,8 +155,8 @@ def boa_analysis(statement_file=bank_statement_file):
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Sales Amazon", "Sales Shopify", "Refunds", "COGS", "Advertisment", "Apps", "Bank Fees"]
-    summary_values = [[amazon_sales], [shopify_balance], refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
+    summary_items = ["Sales Amazon", "Sales Shopify", "Sales Stripe", "Refunds", "COGS", "Advertisment", "Apps", "Bank Fees"]
+    summary_values = [[amazon_sales], [shopify_balance], [stripe_balance], refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
@@ -172,15 +182,17 @@ def paypal_analysis(statement_file=paypal_statement_file):
     professional_fees = []
     todo_description = []
     todo_amount = []
+    todo_name = []
 
     file = pd.read_excel(statement_file)
     fee = file['Fee']
     gross = file['Gross']
     payment_type = file['Type']
     name = file['Name']
+    status = file['Status']
 
     for i in range(len(file['Gross'])):
-        if fee[i]:
+        if fee[i] and not math.isnan(fee[i]):
             paypal_fees = paypal_fees + fee[i]
             paypal_fees_trans.append(fee[i])
         if gross[i] < 0:
@@ -188,7 +200,7 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 ebay_balance = ebay_balance + gross[i]
                 ebay_trans.append(gross[i])
                 cogs.append(gross[i])
-            elif payment_type[i] == "General Credit Card Withdrawal":
+            elif payment_type[i] == "General Credit Card Withdrawal" and status[i] == "Completed":
                 mor_payment = mor_payment + gross[i]
                 mor_payment_trans.append(gross[i])
                 professional_fees.append(gross[i])
@@ -209,9 +221,12 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 if name[i] == "Ileen Jasmine Lajo":
                     staff_payment = staff_payment + gross[i]
                     staff_payment_trans.append(gross[i])
+            elif payment_type[i] == "Express Checkout Payment":
+                cogs.append(gross[i])
             elif payment_type[i] == "General Withdrawal":
                 continue
             else:
+                todo_name.append(name[i])
                 todo_description.append(payment_type[i])
                 todo_amount.append(gross[i])
         else:
@@ -224,6 +239,7 @@ def paypal_analysis(statement_file=paypal_statement_file):
             elif payment_type[i] == "Invoice Received" or payment_type[i] == "Request Received":
                 continue
             else:
+                todo_name.append(name[i])
                 todo_description.append(payment_type[i])
                 todo_amount.append(gross[i])
 
@@ -240,12 +256,12 @@ def paypal_analysis(statement_file=paypal_statement_file):
 
     print("\n********************************** TO DO **********************************************************************\n")
     for i in range(len(todo_description)):
-        print(f"{todo_description[i]} = {todo_amount[i]} \n")
+        print(f"{todo_name[i]}, {todo_description[i]} = {todo_amount[i]} \n")
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Paypal Sales", "Paypal Refunds", "COGS", "Apps", "Paypal Fees"]
-    summary_values = [[paypal_sales], [paypal_refunds], ebay_trans, apps_and_platforms, paypal_fees_trans]
+    summary_items = ["Paypal Sales", "Paypal Refunds", "COGS", "Apps", "Paypal Fees", "Hired Help", "Mor Payment"]
+    summary_values = [[paypal_sales], [paypal_refunds], cogs, apps_and_platforms, paypal_fees_trans, staff_payment_trans, mor_payment_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
