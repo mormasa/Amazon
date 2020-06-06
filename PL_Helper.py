@@ -5,7 +5,7 @@ import math
 
 docs_folder = os.path.dirname(os.path.realpath(__file__)) + "\Docs"
 bank_statement_file = docs_folder + "\BOA.xlsx"
-paypal_statement_file = docs_folder + "\Paypal3.xlsx"
+paypal_statement_file = docs_folder + "\Paypal.xlsx"
 
 
 
@@ -190,8 +190,14 @@ def paypal_analysis(statement_file=paypal_statement_file):
     payment_type = file['Type']
     name = file['Name']
     status = file['Status']
+    currency = file['Currency']
 
     for i in range(len(file['Gross'])):
+        if currency[i] != "USD":
+            todo_name.append(name[i])
+            todo_description.append(payment_type[i])
+            todo_amount.append(gross[i])
+            continue
         if fee[i] and not math.isnan(fee[i]):
             paypal_fees = paypal_fees + fee[i]
             paypal_fees_trans.append(fee[i])
@@ -204,7 +210,8 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 mor_payment = mor_payment + gross[i]
                 mor_payment_trans.append(gross[i])
                 professional_fees.append(gross[i])
-            elif payment_type[i] == "General Currency Conversion" or payment_type[i] == "Hold on Balance for Dispute Investigation":
+            elif payment_type[i] == "General Currency Conversion" or payment_type[i] == "Hold on Balance for Dispute Investigation" \
+                    or payment_type[i] == "Chargeback Fee":
                 paypal_fees = paypal_fees + gross[i]
                 paypal_fees_trans.append(gross[i])
             elif payment_type[i] == "General Payment":
@@ -223,6 +230,10 @@ def paypal_analysis(statement_file=paypal_statement_file):
                     staff_payment_trans.append(gross[i])
             elif payment_type[i] == "Express Checkout Payment":
                 cogs.append(gross[i])
+            elif payment_type[i] == "Reserve Hold" or payment_type[i] == "Chargeback" or payment_type[i] == "General Authorization" \
+                    or payment_type[i] == "Account Hold for Open Authorization" or payment_type[i] == "Payment Reversal":
+                paypal_sales = paypal_sales + gross[i]
+                paypal_sales_trans.append(gross[i])
             elif payment_type[i] == "General Withdrawal":
                 continue
             else:
@@ -230,7 +241,9 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 todo_description.append(payment_type[i])
                 todo_amount.append(gross[i])
         else:
-            if payment_type[i] == "Express Checkout Payment" or payment_type[i] == "Mass Pay Payment":
+            if payment_type[i] == "Express Checkout Payment" or payment_type[i] == "Mass Pay Payment" \
+                    or payment_type[i] == "Void of Authorization" or payment_type[i] == "General Authorization" or \
+                    payment_type[i] == "Mobile Payment" or payment_type[i] == "Reserve Release" or payment_type[i] == "Reversal of General Account Hold":
                 paypal_sales = paypal_sales + gross[i]
                 paypal_sales_trans.append(gross[i])
             elif payment_type[i] == "Cancellation of Hold for Dispute Resolution" or payment_type[i] == "General Currency Conversion":
@@ -267,5 +280,5 @@ def paypal_analysis(statement_file=paypal_statement_file):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
 
 
-# boa_analysis()
-paypal_analysis()
+boa_analysis()
+# paypal_analysis()
