@@ -183,6 +183,8 @@ def paypal_analysis(statement_file=paypal_statement_file):
     todo_description = []
     todo_amount = []
     todo_name = []
+    fb_balance = 0
+    fb_trans = []
 
     file = pd.read_excel(statement_file)
     fee = file['Fee']
@@ -193,7 +195,7 @@ def paypal_analysis(statement_file=paypal_statement_file):
     currency = file['Currency']
 
     for i in range(len(file['Gross'])):
-        if currency[i] != "USD":
+        if currency[i] != "USD" and status[i] != "Denied":
             todo_name.append(name[i])
             todo_description.append(payment_type[i])
             todo_amount.append(gross[i])
@@ -224,10 +226,21 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 if name[i] == "USZoom" or name[i] == "Golan Telecom Ltd":
                     apps_and_platforms_fees = apps_and_platforms_fees + gross[i]
                     apps_and_platforms.append(gross[i])
+                elif "face" in name[i].lower():
+                    fb_balance = fb_balance + gross[i]
+                    fb_trans.append(gross[i])
+                else:
+                    todo_name.append(name[i])
+                    todo_description.append(payment_type[i])
+                    todo_amount.append(gross[i])
             elif payment_type[i] == "Website Payment":
                 if name[i] == "Ileen Jasmine Lajo":
                     staff_payment = staff_payment + gross[i]
                     staff_payment_trans.append(gross[i])
+                else:
+                    todo_name.append(name[i])
+                    todo_description.append(payment_type[i])
+                    todo_amount.append(gross[i])
             elif payment_type[i] == "Express Checkout Payment":
                 cogs.append(gross[i])
             elif payment_type[i] == "Reserve Hold" or payment_type[i] == "Chargeback" or payment_type[i] == "General Authorization" \
@@ -241,11 +254,21 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 todo_description.append(payment_type[i])
                 todo_amount.append(gross[i])
         else:
+            if status[i] == "Denied" or payment_type[i] == "General Credit Card Deposit":
+                continue
             if payment_type[i] == "Express Checkout Payment" or payment_type[i] == "Mass Pay Payment" \
                     or payment_type[i] == "Void of Authorization" or payment_type[i] == "General Authorization" or \
-                    payment_type[i] == "Mobile Payment" or payment_type[i] == "Reserve Release" or payment_type[i] == "Reversal of General Account Hold":
+                    payment_type[i] == "Mobile Payment" or payment_type[i] == "Reserve Release" or \
+                    payment_type[i] == "Reversal of General Account Hold" or payment_type[i] == "General Payment" or payment_type[i] == "Chargeback Reversal":
                 paypal_sales = paypal_sales + gross[i]
                 paypal_sales_trans.append(gross[i])
+            elif payment_type[i] == "Fee Reversal" or "PayPal Protection Bonus" in payment_type[i]:
+                paypal_fees = paypal_fees + gross[i]
+                paypal_fees_trans.append(gross[i])
+            elif payment_type[i] == "Payment Refund":
+                ebay_balance = ebay_balance + gross[i]
+                ebay_trans.append(gross[i])
+                cogs.append(gross[i])
             elif payment_type[i] == "Cancellation of Hold for Dispute Resolution" or payment_type[i] == "General Currency Conversion":
                 paypal_fees = paypal_fees + gross[i]
                 paypal_fees_trans.append(gross[i])
@@ -259,10 +282,10 @@ def paypal_analysis(statement_file=paypal_statement_file):
 
     items_to_print = ["Paypal sales", "Paypal sales trans", "Paypal fees", "Paypal fees trans", "Ebay expense", "Ebay expense trans",
                       "Mor payment", "Mor payment trans", "Paypal refunds", "Paypal refunds trans", "Staff payment",
-                      "Staff payment trans", "Apps payments", "Apps payments trans"]
+                      "Staff payment trans", "Apps payments", "Apps payments trans", "FB Ads Spent", "FB trans"]
     items_amount = [paypal_sales, paypal_sales_trans, paypal_fees, paypal_fees_trans, ebay_balance, ebay_trans,
                     mor_payment, mor_payment_trans, paypal_refunds, paypal_refunds_trans, staff_payment, staff_payment_trans,
-                    apps_and_platforms_fees, apps_and_platforms]
+                    apps_and_platforms_fees, apps_and_platforms, fb_balance, fb_trans]
 
     for i in range(len(items_to_print)):
         print(f"{items_to_print[i]} = {items_amount[i]}")
@@ -273,8 +296,8 @@ def paypal_analysis(statement_file=paypal_statement_file):
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Paypal Sales", "Paypal Refunds", "COGS", "Apps", "Paypal Fees", "Hired Help", "Mor Payment"]
-    summary_values = [[paypal_sales], [paypal_refunds], cogs, apps_and_platforms, paypal_fees_trans, staff_payment_trans, mor_payment_trans]
+    summary_items = ["Paypal Sales", "Paypal Refunds", "COGS", "Apps", "Paypal Fees", "Hired Help", "Mor Payment", "Advertisment"]
+    summary_values = [[paypal_sales], [paypal_refunds], cogs, apps_and_platforms, paypal_fees_trans, staff_payment_trans, mor_payment_trans, fb_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
