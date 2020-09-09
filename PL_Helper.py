@@ -92,8 +92,13 @@ def boa_analysis(statement_file=bank_statement_file):
             amazon_sales = amazon_sales + amount[i]
             amazon_trans.append(amount[i])
         elif "gearbubble" in description[i].lower():
-            gb = gb + amount[i]
-            gb_trans.append(amount[i])
+            if amount[i] < 0:
+                shopify_apps = shopify_apps + amount[i]
+                apps_and_platforms.append(amount[i])
+            else:
+                gb = gb + amount[i]
+                gb_trans.append(amount[i])
+                stripe_balance = stripe_balance + amount[i]
             cogs.append(amount[i])
         elif "etsy" in description[i].lower():
             etsy_balance = etsy_balance + amount[i]
@@ -223,12 +228,15 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 paypal_refunds = paypal_refunds + gross[i]
                 paypal_refunds_trans.append(gross[i])
             elif payment_type[i] == "PreApproved Payment Bill User Payment":
-                if name[i] == "USZoom" or name[i] == "Golan Telecom Ltd":
+                if name[i] == "USZoom" or name[i] == "Golan Telecom Ltd" or "skype" in name[i].lower() or "spotify" in name[i].lower():
                     apps_and_platforms_fees = apps_and_platforms_fees + gross[i]
                     apps_and_platforms.append(gross[i])
                 elif "face" in name[i].lower():
                     fb_balance = fb_balance + gross[i]
                     fb_trans.append(gross[i])
+                elif "fiverr" in name[i].lower():
+                    staff_payment = staff_payment + gross[i]
+                    staff_payment_trans.append(gross[i])
                 else:
                     todo_name.append(name[i])
                     todo_description.append(payment_type[i])
@@ -303,5 +311,5 @@ def paypal_analysis(statement_file=paypal_statement_file):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
 
 
-boa_analysis()
-# paypal_analysis()
+# boa_analysis()
+paypal_analysis()
