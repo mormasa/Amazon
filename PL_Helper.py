@@ -8,7 +8,6 @@ bank_statement_file = docs_folder + "\BOA.xlsx"
 paypal_statement_file = docs_folder + "\Paypal.xlsx"
 
 
-
 def boa_analysis(statement_file=bank_statement_file):
     aliexpress_balance = 0
     aliexpress_trans = []
@@ -103,7 +102,6 @@ def boa_analysis(statement_file=bank_statement_file):
         elif "etsy" in description[i].lower():
             etsy_balance = etsy_balance + amount[i]
             etsy_trans.append(amount[i])
-            apps_and_platforms.append(amount[i])
         elif "clickfunnels" in description[i].lower():
             cf_balance = cf_balance + amount[i]
             cf_trans.append(amount[i])
@@ -160,8 +158,8 @@ def boa_analysis(statement_file=bank_statement_file):
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Sales Amazon", "Sales Shopify", "Sales Stripe", "Refunds", "COGS", "Advertisment", "Apps", "Bank Fees"]
-    summary_values = [[amazon_sales], [shopify_balance], [stripe_balance], refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
+    summary_items = ["Sales Amazon", "Sales Shopify", "Sales Stripe", "Sales Etsy", "Refunds", "COGS", "Advertisment", "Apps", "Bank Fees"]
+    summary_values = [[amazon_sales], [shopify_balance], [stripe_balance], [etsy_balance], refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
