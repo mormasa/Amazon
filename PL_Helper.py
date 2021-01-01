@@ -77,12 +77,12 @@ def boa_analysis(statement_file=bank_statement_file):
                 shopify_trans.append(amount[i])
         elif "stripe" in description[i].lower():
             if "CUSTOMHAPPY" not in description[i]:
-                stripe_balance_trans.append(amount[i])
                 if amount[i] < 0:
                     stripe_refunds = stripe_refunds + amount[i]
                     refunds.append(amount[i])
                 else:
                     stripe_balance = stripe_balance + amount[i]
+                    stripe_balance_trans.append(amount[i])
             else:
                 custom_happy = custom_happy + amount[i]
                 custom_happy_trans.append(amount[i])
@@ -98,7 +98,6 @@ def boa_analysis(statement_file=bank_statement_file):
                 gb = gb + amount[i]
                 gb_trans.append(amount[i])
                 stripe_balance = stripe_balance + amount[i]
-            cogs.append(amount[i])
         elif "etsy" in description[i].lower():
             etsy_balance = etsy_balance + amount[i]
             etsy_trans.append(amount[i])
@@ -140,7 +139,7 @@ def boa_analysis(statement_file=bank_statement_file):
 
 
     items_to_print = ["aliexpress_balance", "Aliexpress trans", "FB balance", "FB trans", "Shopify sales", "Shopify trans",
-                      "Shopify refunds", "Shopify apps", "Amazon sales", "Amazon trans", "GB", "GB trans",
+                      "Shopify refunds", "Shopify apps", "Amazon sales", "Amazon trans", "GB Sales", "GB trans",
                       "Etsy balance", "Etsy trans", "CF balance", "Stamped.io balance", "Klaviyo balance", "Reveal balance",
                       "Adwords balance", "Adwords trans", "Stripe refunds", "stripe balance",
                       "stripe balance trans", "Dropified balance", "Bank fees", "Bank fees trans", "Custom Happy", "Custom Happy Trans"]
@@ -158,8 +157,8 @@ def boa_analysis(statement_file=bank_statement_file):
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Sales Amazon", "Sales Shopify", "Sales Stripe", "Sales Etsy", "Refunds", "COGS", "Advertisment", "Apps", "Bank Fees"]
-    summary_values = [[amazon_sales], [shopify_balance], [stripe_balance], [etsy_balance], refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
+    summary_items = ["Sales Amazon", "Sales Shopify", "Stripe Sales", "Sales GB", "Sales Etsy", "Refunds (Stripe + Shopify)", "COGS", "Advertisment", "Apps", "Bank Fees"]
+    summary_values = [amazon_trans, shopify_trans, stripe_balance_trans, gb_trans, etsy_trans, refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
