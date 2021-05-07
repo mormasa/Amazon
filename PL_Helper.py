@@ -24,14 +24,8 @@ def boa_analysis(statement_file=bank_statement_file):
     todo_amount = []
     etsy_balance = 0
     etsy_trans = []
-    cf_balance = 0
-    cf_trans = []
     klaviyo_balance = 0
     klaviyo_trans = []
-    stamped_balance = 0
-    stamped_trans = []
-    reveal_balance = 0
-    reveal_trans = []
     adwords_balance = 0
     adwords_trans = []
     stripe_refunds = 0
@@ -101,21 +95,9 @@ def boa_analysis(statement_file=bank_statement_file):
         elif "etsy" in description[i].lower():
             etsy_balance = etsy_balance + amount[i]
             etsy_trans.append(amount[i])
-        elif "clickfunnels" in description[i].lower():
-            cf_balance = cf_balance + amount[i]
-            cf_trans.append(amount[i])
-            apps_and_platforms.append(amount[i])
         elif "klaviyo" in description[i].lower():
             klaviyo_balance = klaviyo_balance + amount[i]
             klaviyo_trans.append(amount[i])
-            apps_and_platforms.append(amount[i])
-        elif "stamped" in description[i].lower():
-            stamped_balance = stamped_balance + amount[i]
-            stamped_trans.append(amount[i])
-            apps_and_platforms.append(amount[i])
-        elif "reveal" in description[i].lower():
-            reveal_balance = reveal_balance + amount[i]
-            reveal_trans.append(amount[i])
             apps_and_platforms.append(amount[i])
         elif "GOOGLE" in description[i] and "*ADS" in description[i]:
             adwords_balance = adwords_balance + amount[i]
@@ -140,12 +122,12 @@ def boa_analysis(statement_file=bank_statement_file):
 
     items_to_print = ["aliexpress_balance", "Aliexpress trans", "FB balance", "FB trans", "Shopify sales", "Shopify trans",
                       "Shopify refunds", "Shopify apps", "Amazon sales", "Amazon trans", "GB Sales", "GB trans",
-                      "Etsy balance", "Etsy trans", "CF balance", "Stamped.io balance", "Klaviyo balance", "Reveal balance",
+                      "Etsy balance", "Etsy trans", "Klaviyo balance",
                       "Adwords balance", "Adwords trans", "Stripe refunds", "stripe balance",
                       "stripe balance trans", "Dropified balance", "Bank fees", "Bank fees trans", "Custom Happy", "Custom Happy Trans"]
     items_amount = [aliexpress_balance, aliexpress_trans, fb_balance, fb_trans, shopify_balance, shopify_trans,
                     shopify_refunds, shopify_apps, amazon_sales, amazon_trans, gb, gb_trans, etsy_balance,
-                    etsy_trans, cf_balance, stamped_balance, klaviyo_balance, reveal_balance, adwords_balance, adwords_trans,
+                    etsy_trans, klaviyo_balance, adwords_balance, adwords_trans,
                     stripe_refunds, stripe_balance, stripe_balance_trans, dropified_balance, bank_fees, bank_fees_trans,
                     custom_happy, custom_happy_trans]
     for i in range(len(items_to_print)):
@@ -308,5 +290,5 @@ def paypal_analysis(statement_file=paypal_statement_file):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
 
 
-# boa_analysis()
-paypal_analysis()
+boa_analysis()
+# paypal_analysis()
