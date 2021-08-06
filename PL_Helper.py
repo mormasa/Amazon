@@ -86,8 +86,11 @@ def boa_analysis(statement_file=bank_statement_file):
             amazon_trans.append(amount[i])
         elif "gearbubble" in description[i].lower():
             if amount[i] < 0:
-                shopify_apps = shopify_apps + amount[i]
-                apps_and_platforms.append(amount[i])
+                if "dropship" in description[i].lower():
+                    shopify_apps = shopify_apps + amount[i]
+                    apps_and_platforms.append(amount[i])
+                else:
+                    cogs.append(amount[i])
             else:
                 gb = gb + amount[i]
                 gb_trans.append(amount[i])
@@ -112,7 +115,8 @@ def boa_analysis(statement_file=bank_statement_file):
                 or "MASARANO GROUP DES:PAYPAL IAT ID:" in description[i]:
             continue
         elif "external transfer fee" in description[i].lower() or "Online scheduled transfer to" in description[i].lower()\
-                or "OVERDRAFT ITEM FEE" in description[i] or "Monthly Fee for Business Advantage" in description[i]:
+                or "OVERDRAFT ITEM FEE" in description[i] or "Monthly Fee for Business Advantage" in description[i] \
+                or "Monthly Fee Business Adv Relationship" in description[i]:
             bank_fees = bank_fees + amount[i]
             bank_fees_trans.append(amount[i])
         else:
@@ -290,5 +294,5 @@ def paypal_analysis(statement_file=paypal_statement_file):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
 
 
-boa_analysis()
-# paypal_analysis()
+# boa_analysis()
+paypal_analysis()
