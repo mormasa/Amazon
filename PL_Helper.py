@@ -35,6 +35,7 @@ def boa_analysis(statement_file=bank_statement_file):
     dropified_trans = []
     custom_happy = 0
     custom_happy_trans = []
+    hired_help_trans = []
     shopify_apps = 0
     bank_fees = 0
     bank_fees_trans = []
@@ -57,6 +58,8 @@ def boa_analysis(statement_file=bank_statement_file):
             fb_balance = fb_balance + amount[i]
             fb_trans.append(amount[i])
             advertising_costs.append(amount[i])
+        elif "upwork" in description[i].lower():
+            hired_help_trans.append(amount[i])
         elif "shopify" in description[i].lower():
             if amount[i] < 0:
                 if amount[i] < -30:
@@ -81,7 +84,7 @@ def boa_analysis(statement_file=bank_statement_file):
                 custom_happy = custom_happy + amount[i]
                 custom_happy_trans.append(amount[i])
                 cogs.append(amount[i])
-        elif "amzn" in description[i].lower():
+        elif "amzn" in description[i].lower() or "amazon" in description[i].lower():
             amazon_sales = amazon_sales + amount[i]
             amazon_trans.append(amount[i])
         elif "gearbubble" in description[i].lower():
@@ -128,12 +131,13 @@ def boa_analysis(statement_file=bank_statement_file):
                       "Shopify refunds", "Shopify apps", "Amazon sales", "Amazon trans", "GB Sales", "GB trans",
                       "Etsy balance", "Etsy trans", "Klaviyo balance",
                       "Adwords balance", "Adwords trans", "Stripe refunds", "stripe balance",
-                      "stripe balance trans", "Dropified balance", "Bank fees", "Bank fees trans", "Custom Happy", "Custom Happy Trans"]
+                      "stripe balance trans", "Dropified balance", "Bank fees", "Bank fees trans", "Custom Happy", "Custom Happy Trans",
+                      "Hired help balance", "Hired help trans"]
     items_amount = [aliexpress_balance, aliexpress_trans, fb_balance, fb_trans, shopify_balance, shopify_trans,
                     shopify_refunds, shopify_apps, amazon_sales, amazon_trans, gb, gb_trans, etsy_balance,
                     etsy_trans, klaviyo_balance, adwords_balance, adwords_trans,
                     stripe_refunds, stripe_balance, stripe_balance_trans, dropified_balance, bank_fees, bank_fees_trans,
-                    custom_happy, custom_happy_trans]
+                    custom_happy, custom_happy_trans, sum(hired_help_trans), hired_help_trans]
     for i in range(len(items_to_print)):
         print(f"{items_to_print[i]} = {items_amount[i]}")
 
@@ -143,8 +147,8 @@ def boa_analysis(statement_file=bank_statement_file):
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Sales Amazon", "Sales Shopify", "Stripe Sales", "Sales GB", "Sales Etsy", "Refunds (Stripe + Shopify)", "COGS", "Advertisment", "Apps", "Bank Fees"]
-    summary_values = [amazon_trans, shopify_trans, stripe_balance_trans, gb_trans, etsy_trans, refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans]
+    summary_items = ["Sales Amazon", "Sales Shopify", "Stripe Sales", "Sales GB", "Sales Etsy", "Refunds (Stripe + Shopify)", "COGS", "Advertisment", "Apps", "Bank Fees", "Hired Help"]
+    summary_values = [amazon_trans, shopify_trans, stripe_balance_trans, gb_trans, etsy_trans, refunds, cogs, advertising_costs, apps_and_platforms, bank_fees_trans, hired_help_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
@@ -173,6 +177,7 @@ def paypal_analysis(statement_file=paypal_statement_file):
     todo_name = []
     fb_balance = 0
     fb_trans = []
+    etsy_trans = []
 
     file = pd.read_excel(statement_file)
     fee = file['Fee']
@@ -236,8 +241,11 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 cogs.append(gross[i])
             elif payment_type[i] == "Reserve Hold" or payment_type[i] == "Chargeback" or payment_type[i] == "General Authorization" \
                     or payment_type[i] == "Account Hold for Open Authorization" or payment_type[i] == "Payment Reversal":
-                paypal_sales = paypal_sales + gross[i]
-                paypal_sales_trans.append(gross[i])
+                if "etsy" in name[i].lower():
+                    etsy_trans.append(gross[i])
+                else:
+                    paypal_sales = paypal_sales + gross[i]
+                    paypal_sales_trans.append(gross[i])
             elif payment_type[i] == "General Withdrawal":
                 continue
             else:
@@ -273,10 +281,10 @@ def paypal_analysis(statement_file=paypal_statement_file):
 
     items_to_print = ["Paypal sales", "Paypal sales trans", "Paypal fees", "Paypal fees trans", "Ebay expense", "Ebay expense trans",
                       "Mor payment", "Mor payment trans", "Paypal refunds", "Paypal refunds trans", "Staff payment",
-                      "Staff payment trans", "Apps payments", "Apps payments trans", "FB Ads Spent", "FB trans"]
+                      "Staff payment trans", "Apps payments", "Apps payments trans", "FB Ads Spent", "FB trans", "Etsy Balance", "Etsy trans"]
     items_amount = [paypal_sales, paypal_sales_trans, paypal_fees, paypal_fees_trans, ebay_balance, ebay_trans,
                     mor_payment, mor_payment_trans, paypal_refunds, paypal_refunds_trans, staff_payment, staff_payment_trans,
-                    apps_and_platforms_fees, apps_and_platforms, fb_balance, fb_trans]
+                    apps_and_platforms_fees, apps_and_platforms, fb_balance, fb_trans, sum(etsy_trans), etsy_trans]
 
     for i in range(len(items_to_print)):
         print(f"{items_to_print[i]} = {items_amount[i]}")
@@ -287,12 +295,12 @@ def paypal_analysis(statement_file=paypal_statement_file):
 
 
     print("\n********************************** SUMMARY **********************************************************************\n")
-    summary_items = ["Paypal Sales", "Paypal Refunds", "COGS", "Apps", "Paypal Fees", "Hired Help", "Mor Payment", "Advertisment"]
-    summary_values = [[paypal_sales], [paypal_refunds], cogs, apps_and_platforms, paypal_fees_trans, staff_payment_trans, mor_payment_trans, fb_trans]
+    summary_items = ["Paypal Sales", "Paypal Refunds", "COGS", "Apps", "Paypal Fees", "Hired Help", "Mor Payment", "Advertisment", "Etsy"]
+    summary_values = [[paypal_sales], [paypal_refunds], cogs, apps_and_platforms, paypal_fees_trans, staff_payment_trans, mor_payment_trans, fb_trans, etsy_trans]
 
     for i in range(len(summary_items)):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
 
 
-# boa_analysis()
-paypal_analysis()
+boa_analysis()
+# paypal_analysis()
