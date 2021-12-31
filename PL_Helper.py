@@ -216,7 +216,7 @@ def paypal_analysis(statement_file=paypal_statement_file):
                 paypal_refunds = paypal_refunds + gross[i]
                 paypal_refunds_trans.append(gross[i])
             elif payment_type[i] == "PreApproved Payment Bill User Payment":
-                if name[i] == "USZoom" or name[i] == "Golan Telecom Ltd" or "skype" in name[i].lower() or "spotify" in name[i].lower():
+                if name[i] == "USZoom" or name[i] == "Golan Telecom Ltd" or "skype" in name[i].lower() or "spotify" in name[i].lower() or "benthos labs" in name[i].lower():
                     apps_and_platforms_fees = apps_and_platforms_fees + gross[i]
                     apps_and_platforms.append(gross[i])
                 elif "face" in name[i].lower():
@@ -302,5 +302,5 @@ def paypal_analysis(statement_file=paypal_statement_file):
         print(f"{summary_items[i]} = {sum(summary_values[i])} = {summary_values[i]}\n")
 
 
-boa_analysis()
-# paypal_analysis()
+# boa_analysis()
+paypal_analysis()
